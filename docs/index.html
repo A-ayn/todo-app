@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>TODOリスト</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="manifest" href="manifest.json?v=2" />
+  <meta name="theme-color" content="#a0d8ef">
+</head>
+<body>
+  <h1>TODOリスト</h1>
+
+  <form id="todo-form">
+    <input type="text" id="todo-input" placeholder="タスクを入力..." required />
+    <input type="date" id="due-date">
+    <textarea id="todo-detail" placeholder="詳細を入力..."></textarea>
+    <button type="submit">追加</button>
+  </form>
+
+  <ul id="todo-list"></ul>
+
+  <script src="script.js"></script>
+</body>
+</html>
