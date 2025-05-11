@@ -31,6 +31,9 @@ document.getElementById("todo-form").addEventListener("submit", function (e) {
 
 function createTodoElement(todo, index) {
   const todoItem = document.createElement("li");
+  if (todo.completed) {
+    todoItem.classList.add("completed");
+  }
 
   // ヘッダー(1行で表示)
   const header = document.createElement("div");
