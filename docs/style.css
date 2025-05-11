@@ -75,7 +75,24 @@ li {
   flex-wrap: wrap;
 }
 
+li small {
+  font-size: 14px;
+  white-space: normal;
+  overflow: visible;
+  text-overflow: initial;
+  color: #666;
+  flex-shrink: 0;
+}
+
 li span {
+  font-size: 14px;
+  line-height: 1.4;
+  max-height: 2.8em;
+  overflow: hidden;
+  display: -webkit-box;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  text-align: left;
   flex-grow: 1;
   word-break: break-word;
 }
@@ -95,12 +112,32 @@ li textarea {
 li button {
   width: auto;
   padding: 8px 12px;
-  margin-top: 5px;
   font-size: 14px;
 }
 
 input[type="checkbox"] {
   transform: scale(1.3);
+}
+
+#toggle-completed {
+  display: block;
+  margin: 0 auto 20px;
+  padding: 10px 20px;
+  max-width: 200px;
+  background-color: #8ed5fb;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  text-align: center;
+}
+
+.button-container {
+  display: flex;
+  gap: 10px;
+  margin-top: 8px;
+  flex-wrap: wrap;
 }
 
 /* スマホ用レイアウト調整 */
@@ -151,8 +188,14 @@ input[type="checkbox"] {
     min-height: 80px;
   }
 
+  .button-container {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
   li button {
-    width: 100%;
+    width: auto;
     margin: 6px 0;
   }
 }
