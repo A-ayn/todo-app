@@ -40,6 +40,8 @@ function createTodoElement(todo, index) {
   header.style.gap = "10px";
   header.style.width = "100%";
 
+  header.classList.add("todo-header");
+
   const checkbox = document.createElement("input");
   checkbox.type = "checkbox";
   checkbox.checked = todo.completed;
