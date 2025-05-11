@@ -32,6 +32,14 @@ document.getElementById("todo-form").addEventListener("submit", function (e) {
 function createTodoElement(todo, index) {
   const todoItem = document.createElement("li");
 
+  // ヘッダー(1行で表示)
+  const header = document.createElement("div");
+  header.style.display = "flex";
+  header.style.alignItems = "center";
+  header.style.justifyContent = "space-between";
+  header.style.gap = "10px";
+  header.style.width = "100%";
+
   const checkbox = document.createElement("input");
   checkbox.type = "checkbox";
   checkbox.checked = todo.completed;
@@ -47,20 +55,26 @@ function createTodoElement(todo, index) {
     textSpan.style.textDecoration = "line-through";
   }
 
-  // タスク期限を設定
   const date = document.createElement("small");
-  if (todo.dueDate) {
-    const dueDateObj = new Date(todo.dueDate);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    date.textContent = "期限: " + todo.dueDate;
-    if (dueDateObj < today) {
-      date.style.color = "red";
-      date.style.fontWeight = "bold";
-    }
+  date.textContent = "期限: " + todo.dueDate;
+  if (todo.dueDate && new Date(todo.dueDate) < new Date().setHours(0,0,0,0)) {
+    date.style.color = "red";
+    date.style.fontWeight = "bold";
   }
 
-  // タスク詳細を入力
+  const toggleDetailButton = document.createElement("button");
+  toggleDetailButton.textContent = "🔽";
+  toggleDetailButton.style.background = "none";
+  toggleDetailButton.style.fontSize = "20px";
+  toggleDetailButton.style.cursor = "pointer";
+  toggleDetailButton.style.flexShrink = "0";
+
+  // 詳細セクション(初期非表示)
+  const detailSection = document.createElement("div");
+  detailSection.style.display = "none"; // 最初は非表示
+  detailSection.style.width = "100%";
+  detailSection.style.marginTop = "0";
+
   const detailTextarea = document.createElement("textarea");
   detailTextarea.value = todo.detail || "";
   detailTextarea.placeholder = "詳細を入力...";
@@ -68,7 +82,7 @@ function createTodoElement(todo, index) {
     todo.detail = detailTextarea.value;
     saveTodos();
   });
-  
+
   // 編集ボタン
   const editButton = document.createElement("button");
   editButton.textContent = "編集";
@@ -76,21 +90,11 @@ function createTodoElement(todo, index) {
     const newText = prompt("タスクを編集:", todo.text);
     const newDate = prompt("期限を編集 (YYYY-MM-DD):", todo.dueDate);
     const newDetail = prompt("詳細を編集:", todo.detail);
-
-    if (newText !== null) {
-      todo.text = newText.trim();
-    }
-
-    if (newDate !== null) {
-      todo.dueDate = newDate.trim() || null;
-    }
-
-    if (newDetail !== null) {
-      todo.detail = newDetail.trim();
-    }
-
-      saveTodos();
-      renderTodos();
+    if (newText !== null) todo.text = newText.trim();
+    if (newDate !== null) todo.dueDate = newDate.trim() || null;
+    if (newDetail !== null) todo.detail = newDetail.trim();
+    saveTodos();
+    renderTodos();
   });
 
   // 削除ボタン
@@ -102,15 +106,42 @@ function createTodoElement(todo, index) {
     renderTodos();
   });
 
-  todoItem.appendChild(checkbox);
-  todoItem.appendChild(textSpan);
-  todoItem.appendChild(date);
-  todoItem.appendChild(detailTextarea);
-  todoItem.appendChild(editButton);
-  todoItem.appendChild(deleteButton);
+  // ボタン配置調整
+  const buttonContainer = document.createElement("div");
+  buttonContainer.classList.add("button-container");
+  buttonContainer.appendChild(editButton);
+  buttonContainer.appendChild(deleteButton);
+
+  // トグル動作
+  toggleDetailButton.addEventListener("click", function () {
+    detailSection.style.display =
+      detailSection.style.display === "none" ? "block" : "none";
+    toggleDetailButton.textContent =
+      detailSection.style.display === "none" ? "🔽" : "🔼";
+  });
+
+  header.appendChild(checkbox);
+  header.appendChild(textSpan);
+  header.appendChild(date);
+  header.appendChild(toggleDetailButton);
+
+  detailSection.appendChild(detailTextarea);
+  detailSection.appendChild(buttonContainer);
+
+  todoItem.appendChild(header);
+  todoItem.appendChild(detailSection);
 
   return todoItem;
 }
+
+//　完了タスク非表示フラグ
+let hideCompleted = false;
+
+document.getElementById("toggle-completed").addEventListener("click", function () {
+  hideCompleted = !hideCompleted;
+  this.textContent = hideCompleted ? "完了タスクを表示する" : "完了タスクを隠す";
+  renderTodos();
+});
 
 function renderTodos() {
   const list = document.getElementById("todo-list");
@@ -123,7 +154,9 @@ function renderTodos() {
     return new Date(a.dueDate) - new Date(b.dueDate);
   });
 
-  todos.forEach((todo, index) => {
+  //　完了タスクの表示条件
+  const filterTodos = todos.filter(todo => !hideCompleted || !todo.completed);
+  filterTodos.forEach((todo, index) => {
     list.appendChild(createTodoElement(todo, index));
   });
 }
