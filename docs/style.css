@@ -1,3 +1,7 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
 body {
   font-family: "Arial", "sans-serif";
   background-color: #f0f8ff;
@@ -10,6 +14,26 @@ body {
 h1 {
   text-align: center;
   color: #3399cc;
+}
+
+/* カテゴリ見出し */
+h2 {
+  font-size: 16px;
+  font-weight: bold;
+  color: #333;
+  margin: 20px auto 8px;
+  padding-left: 14px;
+  position: relative;
+  max-width: 500px;
+  text-align: left;
+}
+
+h2::before {
+  content: "|";
+  position: absolute;
+  left: 0;
+  color: #3399cc;
+  font-weight: bold;
 }
 
 form {
@@ -160,7 +184,8 @@ input[type="checkbox"] {
     padding: 10px;
   }
 
-  form, ul {
+  form,
+  ul {
     width: 100%;
     margin: 12px 0;
     padding: 10px;
@@ -182,33 +207,71 @@ input[type="checkbox"] {
     padding: 10px;
   }
 
-  li span {
+  .todo-header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: nowrap;
     width: 100%;
   }
 
-  li input[type="checkbox"] {
+  .todo-header input[type="checkbox"] {
     transform: scale(1.6);
-    margin-bottom: 8px;
+    margin-bottom: 0;
+    flex-shrink: 0;
   }
 
-  li input[type="text"],
-  li input[type="date"] {
-    width: 100%;
+  .todo-header span {
+    flex-grow: 1;
+    font-size: 14px;
+    display: -webkit-box;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    word-break: break-word;
+    line-height: 1.3;
+  }
+
+  .todo-header small {
+    font-size: 13px;
+    white-space: nowrap;
+    color: #666;
+    flex-shrink: 0;
+  }
+
+  .todo-header button {
+    background: none;
+    font-size: 18px;
+    padding: 0;
+    flex-shrink: 0;
+    cursor: pointer;
   }
 
   li textarea {
-    font-size: 14px;
+    font-size: 13px;
     min-height: 80px;
+    width: 100%;
   }
 
   .button-container {
     display: flex;
     gap: 10px;
     flex-wrap: wrap;
+    margin-top: 10px;
   }
 
   li button {
     width: auto;
     margin: 6px 0;
+  }
+
+  h2 {
+    font-size: 18px;
+    padding: 10px;
+    width: 100%;
+    box-sizing: border-box;
+    border-radius: 0;
   }
 }
