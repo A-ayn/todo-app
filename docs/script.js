@@ -10,22 +10,26 @@ document.getElementById("todo-form").addEventListener("submit", function (e) {
   const input = document.getElementById("todo-input");
   const dateInput = document.getElementById("due-date");
   const detailInput = document.getElementById("todo-detail");
+  const categoryInput = document.getElementById("category-input");
   const text = input.value.trim();
   const dueDate = dateInput.value;
   const detail = detailInput.value.trim();
+  const category = categoryInput.value.trim();
 
   if (text) {
     todos.push({
       text: text,
       completed: false,
       dueDate: dueDate,
-      detail: detail
+      detail: detail,
+      category: category || "未分類"
     });
     saveTodos();
     renderTodos();
     input.value = "";
     dateInput.value = "";
     detailInput.value = "";
+    categoryInput.value = "";
   }
 });
 
@@ -35,14 +39,7 @@ function createTodoElement(todo, index) {
     todoItem.classList.add("completed");
   }
 
-  // ヘッダー(1行で表示)
   const header = document.createElement("div");
-  header.style.display = "flex";
-  header.style.alignItems = "center";
-  header.style.justifyContent = "space-between";
-  header.style.gap = "10px";
-  header.style.width = "100%";
-
   header.classList.add("todo-header");
 
   const checkbox = document.createElement("input");
@@ -62,7 +59,7 @@ function createTodoElement(todo, index) {
 
   const date = document.createElement("small");
   date.textContent = "期限: " + todo.dueDate;
-  if (todo.dueDate && new Date(todo.dueDate) < new Date().setHours(0,0,0,0)) {
+  if (todo.dueDate && new Date(todo.dueDate) < new Date().setHours(0, 0, 0, 0)) {
     date.style.color = "red";
     date.style.fontWeight = "bold";
   }
@@ -74,9 +71,8 @@ function createTodoElement(todo, index) {
   toggleDetailButton.style.cursor = "pointer";
   toggleDetailButton.style.flexShrink = "0";
 
-  // 詳細セクション(初期非表示)
   const detailSection = document.createElement("div");
-  detailSection.style.display = "none"; // 最初は非表示
+  detailSection.style.display = "none";
   detailSection.style.width = "100%";
   detailSection.style.marginTop = "0";
 
@@ -88,21 +84,22 @@ function createTodoElement(todo, index) {
     saveTodos();
   });
 
-  // 編集ボタン
   const editButton = document.createElement("button");
   editButton.textContent = "編集";
   editButton.addEventListener("click", function () {
     const newText = prompt("タスクを編集:", todo.text);
     const newDate = prompt("期限を編集 (YYYY-MM-DD):", todo.dueDate);
     const newDetail = prompt("詳細を編集:", todo.detail);
+    const newCategory = prompt("カテゴリを編集:", todo.category || "");
+
     if (newText !== null) todo.text = newText.trim();
     if (newDate !== null) todo.dueDate = newDate.trim() || null;
     if (newDetail !== null) todo.detail = newDetail.trim();
+    if (newCategory !== null) todo.category = newCategory.trim();
     saveTodos();
     renderTodos();
   });
 
-  // 削除ボタン
   const deleteButton = document.createElement("button");
   deleteButton.textContent = "削除";
   deleteButton.addEventListener("click", function () {
@@ -111,13 +108,11 @@ function createTodoElement(todo, index) {
     renderTodos();
   });
 
-  // ボタン配置調整
   const buttonContainer = document.createElement("div");
   buttonContainer.classList.add("button-container");
   buttonContainer.appendChild(editButton);
   buttonContainer.appendChild(deleteButton);
 
-  // トグル動作
   toggleDetailButton.addEventListener("click", function () {
     detailSection.style.display =
       detailSection.style.display === "none" ? "block" : "none";
@@ -139,7 +134,6 @@ function createTodoElement(todo, index) {
   return todoItem;
 }
 
-//　完了タスク非表示フラグ
 let hideCompleted = false;
 
 document.getElementById("toggle-completed").addEventListener("click", function () {
@@ -152,17 +146,36 @@ function renderTodos() {
   const list = document.getElementById("todo-list");
   list.innerHTML = "";
 
-  // 期限順で並び替え（空の期限は最後）
-  todos.sort((a, b) => {
-    if (!a.dueDate) return 1;
-    if (!b.dueDate) return -1;
-    return new Date(a.dueDate) - new Date(b.dueDate);
+  const categoryMap = {};
+  todos
+    .filter(todo => !hideCompleted || !todo.completed)
+    .forEach((todo, index) => {
+      const category = todo.category || "未分類";
+      if (!categoryMap[category]) categoryMap[category] = [];
+      categoryMap[category].push({ todo, index });
+    });
+
+  // カスタムソート：未分類を最後に
+  const sortedCategories = Object.keys(categoryMap).sort((a, b) => {
+    if (a === "未分類") return 1;
+    if (b === "未分類") return -1;
+    return a.localeCompare(b);
   });
 
-  //　完了タスクの表示条件
-  const filterTodos = todos.filter(todo => !hideCompleted || !todo.completed);
-  filterTodos.forEach((todo, index) => {
-    list.appendChild(createTodoElement(todo, index));
+  sortedCategories.forEach(category => {
+    const categoryHeader = document.createElement("h2");
+    categoryHeader.textContent = category;
+    list.appendChild(categoryHeader);
+
+    categoryMap[category].sort((a, b) => {
+      if (!a.todo.dueDate) return 1;
+      if (!b.todo.dueDate) return -1;
+      return new Date(a.todo.dueDate) - new Date(b.todo.dueDate);
+    });
+
+    categoryMap[category].forEach(({ todo, index }) => {
+      list.appendChild(createTodoElement(todo, index));
+    });
   });
 }
 
@@ -180,10 +193,10 @@ function loadTodos() {
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', function () {
     navigator.serviceWorker.register('service-worker.js')
-    .then(function (registration) {
-      console.log('ServiceWorker registration successful:', registration.scope);
-    }, function (err) {
-      console.log('ServiceWorker registration failed:', err);
-    });
+      .then(function (registration) {
+        console.log('ServiceWorker registration successful:', registration.scope);
+      }, function (err) {
+        console.log('ServiceWorker registration failed:', err);
+      });
   });
 }
